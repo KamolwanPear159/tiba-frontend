@@ -388,9 +388,12 @@ function Step1Form({
 function TutorPicker({ selectedIDs, onChange }: { selectedIDs: string[]; onChange: (ids: string[]) => void }) {
   const { data } = useQuery({
     queryKey: ['admin-tutors-picker'],
-    queryFn: () => adminService.getTutors({ page: 1, page_size: 100 }),
+    queryFn: () => adminService.getTutors({ page: 1, page_size: 200 }),
   })
-  const tutors = data?.data ?? []
+  // Deduplicate by tutor_id to handle any duplicate seed data
+  const allTutors = data?.data ?? []
+  const seen = new Set<string>()
+  const tutors = allTutors.filter(t => { if (seen.has(t.tutor_id)) return false; seen.add(t.tutor_id); return true })
 
   const toggle = (id: string) => {
     onChange(selectedIDs.includes(id) ? selectedIDs.filter(x => x !== id) : [...selectedIDs, id])
@@ -444,7 +447,7 @@ function TutorPicker({ selectedIDs, onChange }: { selectedIDs: string[]; onChang
 // ─── Step 2 Form ─────────────────────────────────────────────────────────────
 
 function Step2Form({
-  data, onChange, onBack, onSave, isSaving, selectedTutorIDs, onTutorChange,
+  data, onChange, onBack, onSave, isSaving, selectedTutorIDs, onTutorChange, pendingDocs, onDocsChange,
 }: {
   data: Step2Data
   onChange: (patch: Partial<Step2Data>) => void
@@ -453,6 +456,8 @@ function Step2Form({
   isSaving: boolean
   selectedTutorIDs: string[]
   onTutorChange: (ids: string[]) => void
+  pendingDocs: { name: string; file: File }[]
+  onDocsChange: (docs: { name: string; file: File }[]) => void
 }) {
   function addOutcome() {
     if (data.outcomes.length >= 5) return
@@ -569,10 +574,10 @@ function Step2Form({
             {data.scheduleRows.map((row, i) => (
               <tr key={i}>
                 <td style={{ padding: '6px 10px' }}>
-                  <input type="text" value={row.start} onChange={e => updateScheduleRow(i, 'start', e.target.value)} placeholder="ระบุเวลา" style={{ ...inputStyle, width: 120 }} />
+                  <input type="time" value={row.start} onChange={e => updateScheduleRow(i, 'start', e.target.value)} style={{ ...inputStyle, width: 130 }} />
                 </td>
                 <td style={{ padding: '6px 10px' }}>
-                  <input type="text" value={row.end} onChange={e => updateScheduleRow(i, 'end', e.target.value)} placeholder="ระบุเวลา" style={{ ...inputStyle, width: 120 }} />
+                  <input type="time" value={row.end} onChange={e => updateScheduleRow(i, 'end', e.target.value)} style={{ ...inputStyle, width: 130 }} />
                 </td>
                 <td style={{ padding: '6px 10px' }}>
                   <input type="text" value={row.activity} onChange={e => updateScheduleRow(i, 'activity', e.target.value)} placeholder="ระบุกำหนดการ" style={{ ...inputStyle }} />
@@ -622,6 +627,37 @@ function Step2Form({
         </div>
       </div>
 
+      {/* Documents */}
+      <div style={cardStyle}>
+        <p style={sectionTitleStyle}>เอกสารแนบเพิ่มเติม</p>
+        <label style={{ ...labelStyle, color: '#6b7280', fontSize: 15 }}>รายการเอกสาร</label>
+        {pendingDocs.map((doc, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>
+            <span style={{ width: 28, textAlign: 'center', fontSize: 15, color: '#6b7280', fontFamily: 'var(--font-thai)', flexShrink: 0 }}>{i + 1}</span>
+            <input
+              type="text"
+              value={doc.name}
+              onChange={e => { const arr = [...pendingDocs]; arr[i] = { ...arr[i], name: e.target.value }; onDocsChange(arr) }}
+              placeholder="ชื่อเอกสาร"
+              style={{ ...inputStyle, flex: 1 }}
+            />
+            <span style={{ fontSize: 13, color: '#6b7280', fontFamily: 'var(--font-thai)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 0 }}>{doc.file.name}</span>
+            <button onClick={() => onDocsChange(pendingDocs.filter((_, idx) => idx !== i))} style={{ width: 36, height: 42, border: 'none', borderRadius: 6, backgroundColor: '#fee2e2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Trash2 size={15} color="#dc2626" />
+            </button>
+          </div>
+        ))}
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #1f4488', backgroundColor: '#fff', fontSize: 15, cursor: 'pointer', fontFamily: 'var(--font-thai)', color: '#1f4488' }}>
+          <Upload size={14} />
+          อัปโหลดเอกสาร
+          <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip" style={{ display: 'none' }} onChange={e => {
+            const file = e.target.files?.[0]
+            if (file) { onDocsChange([...pendingDocs, { name: file.name.replace(/\.[^.]+$/, ''), file }]) }
+            e.target.value = ''
+          }} />
+        </label>
+      </div>
+
       {/* Tutors */}
       <div style={{ backgroundColor: '#fff', borderRadius: 12, border: '1px solid #e5e6f0', padding: '24px 28px', marginBottom: 20 }}>
         <p style={sectionTitleStyle}>ผู้สอน <span style={{ fontSize: 13, fontWeight: 400, color: '#9ca3af' }}>(เลือกได้หลายคน)</span></p>
@@ -650,6 +686,7 @@ export default function CreateCoursePage() {
   const router = useRouter()
   const [step, setStep] = useState<1 | 2>(1)
   const [selectedTutorIDs, setSelectedTutorIDs] = useState<string[]>([])
+  const [pendingDocs, setPendingDocs] = useState<{ name: string; file: File }[]>([])
 
   const [step1, setStep1] = useState<Step1Data>({
     thumbnail: null,
@@ -707,6 +744,9 @@ export default function CreateCoursePage() {
       if (selectedTutorIDs.length > 0) {
         await courseService.setCourseTutors(course.course_id, selectedTutorIDs).catch(() => {})
       }
+      for (const doc of pendingDocs) {
+        await courseService.addDocument(course.course_id, doc.name, doc.file).catch(() => {})
+      }
       toast.success('สร้างคอร์สสำเร็จ')
       router.push(`/admin/courses/${course.course_id}`)
     },
@@ -747,6 +787,8 @@ export default function CreateCoursePage() {
           isSaving={saveMutation.isPending}
           selectedTutorIDs={selectedTutorIDs}
           onTutorChange={setSelectedTutorIDs}
+          pendingDocs={pendingDocs}
+          onDocsChange={setPendingDocs}
         />
       )}
     </div>

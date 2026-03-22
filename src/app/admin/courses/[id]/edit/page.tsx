@@ -4,7 +4,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import { ChevronLeft, Plus, Trash2, Check } from 'lucide-react'
+import { ChevronLeft, Plus, Trash2, Check, Upload } from 'lucide-react'
+import type { CourseDocument } from '@/types'
 import { courseService } from '@/lib/api/services/course.service'
 import { adminService } from '@/lib/api/services/admin.service'
 
@@ -72,7 +73,9 @@ function TutorPicker({ selectedIDs, onChange }: { selectedIDs: string[]; onChang
     queryKey: ['admin-tutors-picker'],
     queryFn: () => adminService.getTutors({ page: 1, page_size: 100 }),
   })
-  const tutors = data?.data ?? []
+  const allTutors = data?.data ?? []
+  const seen = new Set<string>()
+  const tutors = allTutors.filter(t => { if (seen.has(t.tutor_id)) return false; seen.add(t.tutor_id); return true })
   const toggle = (id: string) => onChange(selectedIDs.includes(id) ? selectedIDs.filter(x => x !== id) : [...selectedIDs, id])
 
   if (tutors.length === 0) {
@@ -108,6 +111,9 @@ export default function EditCoursePage() {
   const courseId = params.id as string
   const [step, setStep] = useState<1 | 2>(1)
   const [selectedTutorIDs, setSelectedTutorIDs] = useState<string[]>([])
+  const [existingDocs, setExistingDocs] = useState<CourseDocument[]>([])
+  const [pendingDocs, setPendingDocs] = useState<{ name: string; file: File }[]>([])
+  const [deletingDocIds, setDeletingDocIds] = useState<Set<string>>(new Set())
 
   const { data: course, isLoading } = useQuery({
     queryKey: ['admin-course', courseId],
@@ -142,7 +148,9 @@ export default function EditCoursePage() {
     if (course.tutors && course.tutors.length > 0) {
       setSelectedTutorIDs(course.tutors.map(t => t.tutor_id))
     }
-  }, [course])
+    // Load existing documents
+    courseService.listDocuments(courseId).then(docs => setExistingDocs(docs)).catch(() => {})
+  }, [course, courseId])
 
   const saveMutation = useMutation({
     mutationFn: () => {
@@ -160,6 +168,14 @@ export default function EditCoursePage() {
     },
     onSuccess: async () => {
       await courseService.setCourseTutors(courseId, selectedTutorIDs).catch(() => {})
+      // Delete removed docs
+      for (const id of deletingDocIds) {
+        await courseService.deleteDocument(courseId, id).catch(() => {})
+      }
+      // Upload new docs
+      for (const doc of pendingDocs) {
+        await courseService.addDocument(courseId, doc.name, doc.file).catch(() => {})
+      }
       toast.success('แก้ไขคอร์สสำเร็จ')
       router.push(`/admin/courses/${courseId}`)
     },
@@ -319,8 +335,8 @@ export default function EditCoursePage() {
               <tbody>
                 {scheduleRows.map((row, i) => (
                   <tr key={i}>
-                    <td style={{ padding: '6px 10px' }}><input type="text" value={row.start} onChange={e => { const arr = [...scheduleRows]; arr[i].start = e.target.value; setScheduleRows(arr) }} placeholder="ระบุเวลา" style={{ ...inputStyle, width: 120 }} /></td>
-                    <td style={{ padding: '6px 10px' }}><input type="text" value={row.end} onChange={e => { const arr = [...scheduleRows]; arr[i].end = e.target.value; setScheduleRows(arr) }} placeholder="ระบุเวลา" style={{ ...inputStyle, width: 120 }} /></td>
+                    <td style={{ padding: '6px 10px' }}><input type="time" value={row.start} onChange={e => { const arr = [...scheduleRows]; arr[i].start = e.target.value; setScheduleRows(arr) }} style={{ ...inputStyle, width: 130 }} /></td>
+                    <td style={{ padding: '6px 10px' }}><input type="time" value={row.end} onChange={e => { const arr = [...scheduleRows]; arr[i].end = e.target.value; setScheduleRows(arr) }} style={{ ...inputStyle, width: 130 }} /></td>
                     <td style={{ padding: '6px 10px' }}><input type="text" value={row.activity} onChange={e => { const arr = [...scheduleRows]; arr[i].activity = e.target.value; setScheduleRows(arr) }} placeholder="ระบุกำหนดการ" style={inputStyle} /></td>
                     <td style={{ padding: '6px 10px', width: 40 }}>
                       <button onClick={() => setScheduleRows(scheduleRows.filter((_, idx) => idx !== i))} style={{ width: 32, height: 32, border: 'none', borderRadius: 6, backgroundColor: '#fee2e2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -335,6 +351,54 @@ export default function EditCoursePage() {
               <Plus size={14} />
               เพิ่มกำหนดการ
             </button>
+          </div>
+
+          {/* Documents */}
+          <div style={cardStyle}>
+            <p style={{ fontSize: 18, fontWeight: 700, color: '#1f4488', marginBottom: 16, fontFamily: FONT }}>เอกสารแนบเพิ่มเติม</p>
+            <label style={{ fontSize: 15, fontWeight: 500, color: '#6b7280', marginBottom: 8, display: 'block', fontFamily: FONT }}>รายการเอกสาร</label>
+            {existingDocs.filter(d => !deletingDocIds.has(d.id)).map((doc, i) => (
+              <div key={doc.id} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>
+                <span style={{ width: 28, textAlign: 'center', fontSize: 15, color: '#6b7280', fontFamily: FONT, flexShrink: 0 }}>{i + 1}</span>
+                <input
+                  type="text"
+                  value={doc.name}
+                  onChange={e => {
+                    setExistingDocs(prev => prev.map(d => d.id === doc.id ? { ...d, name: e.target.value } : d))
+                    courseService.updateDocument(courseId, doc.id, e.target.value).catch(() => {})
+                  }}
+                  style={{ ...inputStyle, flex: 1 }}
+                />
+                <span style={{ fontSize: 13, color: '#6b7280', fontFamily: FONT, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 0 }}>{doc.file_path.split('/').pop()}</span>
+                <button onClick={() => setDeletingDocIds(prev => new Set([...prev, doc.id]))} style={{ width: 36, height: 42, border: 'none', borderRadius: 6, backgroundColor: '#fee2e2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Trash2 size={15} color="#dc2626" />
+                </button>
+              </div>
+            ))}
+            {pendingDocs.map((doc, i) => (
+              <div key={`new-${i}`} style={{ display: 'flex', gap: 8, marginBottom: 10, alignItems: 'center' }}>
+                <span style={{ width: 28, textAlign: 'center', fontSize: 15, color: '#6b7280', fontFamily: FONT, flexShrink: 0 }}>{existingDocs.filter(d => !deletingDocIds.has(d.id)).length + i + 1}</span>
+                <input
+                  type="text"
+                  value={doc.name}
+                  onChange={e => { const arr = [...pendingDocs]; arr[i] = { ...arr[i], name: e.target.value }; setPendingDocs(arr) }}
+                  style={{ ...inputStyle, flex: 1 }}
+                />
+                <span style={{ fontSize: 13, color: '#6b7280', fontFamily: FONT, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flexShrink: 0 }}>{doc.file.name}</span>
+                <button onClick={() => setPendingDocs(pendingDocs.filter((_, idx) => idx !== i))} style={{ width: 36, height: 42, border: 'none', borderRadius: 6, backgroundColor: '#fee2e2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Trash2 size={15} color="#dc2626" />
+                </button>
+              </div>
+            ))}
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: '1px solid #1f4488', backgroundColor: '#fff', fontSize: 15, cursor: 'pointer', fontFamily: FONT, color: '#1f4488' }}>
+              <Upload size={14} />
+              อัปโหลดเอกสาร
+              <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip" style={{ display: 'none' }} onChange={e => {
+                const file = e.target.files?.[0]
+                if (file) setPendingDocs(prev => [...prev, { name: file.name.replace(/\.[^.]+$/, ''), file }])
+                e.target.value = ''
+              }} />
+            </label>
           </div>
 
           {/* Tutors */}

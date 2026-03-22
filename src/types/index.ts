@@ -354,6 +354,15 @@ export interface Tutor {
   created_at: string
 }
 
+export interface CourseDocument {
+  id: string
+  course_id: string
+  name: string
+  file_path: string
+  display_order: number
+  created_at: string
+}
+
 // ─── User Logs ────────────────────────────────────────────────────────────────
 
 export interface UserLog {

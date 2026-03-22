@@ -207,11 +207,15 @@ export default function CourseCard({
             {/* Overlapping avatars */}
             {instructorAvatars.length > 0 && (
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                {instructorAvatars.slice(0, 4).map((av, i) => (
-                  <div key={i} style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid #fff', marginRight: i < instructorAvatars.length - 1 ? -4 : 0, zIndex: 5 - i, overflow: 'hidden', flexShrink: 0, position: 'relative', backgroundColor: '#e5e7eb' }}>
-                    <Image src={av} alt="" fill style={{ objectFit: 'cover' }} />
-                  </div>
-                ))}
+                {instructorAvatars.slice(0, 4).map((av, i) => {
+                  // Resolve raw upload paths to full URL
+                  const avatarSrc = av.startsWith('http') || av.startsWith('/assets') ? av : (getImageUrl(av) ?? av)
+                  return (
+                    <div key={i} style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid #fff', marginRight: i < instructorAvatars.length - 1 ? -4 : 0, zIndex: 5 - i, overflow: 'hidden', flexShrink: 0, position: 'relative', backgroundColor: '#e5e7eb' }}>
+                      <Image src={avatarSrc} alt="" fill style={{ objectFit: 'cover' }} unoptimized />
+                    </div>
+                  )
+                })}
               </div>
             )}
             {instructorAvatars.length === 0 && (
