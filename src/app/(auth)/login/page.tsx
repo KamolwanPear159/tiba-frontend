@@ -82,13 +82,6 @@ export default function LoginPage() {
         alignItems: 'center',
       }}
     >
-      {/* Logo */}
-      <img
-        src="/assets/footer-logo.png"
-        alt="TIBA"
-        style={{ height: 56, objectFit: 'contain' }}
-      />
-
       {/* Title */}
       <p
         style={{
@@ -231,6 +224,27 @@ export default function LoginPage() {
         >
           {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
         </button>
+
+        {/* Admin login button */}
+        <Link
+          href="/admin/login"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 48,
+            borderRadius: 8,
+            border: '1px solid #dfdfdf',
+            fontFamily: 'var(--font-thai)',
+            fontWeight: 600,
+            fontSize: 16,
+            color: '#0a0a0a',
+            textDecoration: 'none',
+            background: '#fff',
+          }}
+        >
+          เข้าสู่ระบบแอดมิน
+        </Link>
       </form>
 
       {/* Register link */}
@@ -243,7 +257,7 @@ export default function LoginPage() {
             color: '#0a0a0a',
           }}
         >
-          ยังไม่มีบัญชี?
+          ยังไม่ได้เป็นสมาชิก?
         </span>
         <Link
           href="/register"
@@ -256,22 +270,7 @@ export default function LoginPage() {
             fontWeight: 600,
           }}
         >
-          สมัครสมาชิก
-        </Link>
-      </div>
-
-      {/* Admin login link */}
-      <div style={{ borderTop: '1px solid #f0f0f0', width: '100%', paddingTop: 16, textAlign: 'center' }}>
-        <Link
-          href="/admin/login"
-          style={{
-            fontFamily: 'var(--font-thai)',
-            fontSize: 14,
-            color: '#7b7b7b',
-            textDecoration: 'none',
-          }}
-        >
-          เข้าสู่ระบบแอดมิน
+          คลิกเพื่อลงทะเบียน
         </Link>
       </div>
     </div>
