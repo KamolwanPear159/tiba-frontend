@@ -40,7 +40,6 @@ const subMenuItems = [
     ],
   },
   { label: 'บริษัทสมาชิก', href: '/companies' },
-  { label: 'ราคา/สิทธิประโยชน์', href: '/price-benefits' },
   { label: 'ติดต่อเรา',    href: '/contact' },
 ]
 
