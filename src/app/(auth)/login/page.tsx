@@ -103,7 +103,7 @@ export default function LoginPage() {
         style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}
       >
         {/* Email */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <label
             style={{
               fontFamily: 'var(--font-thai)',
@@ -124,7 +124,7 @@ export default function LoginPage() {
         </div>
 
         {/* Password */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <label
             style={{
               fontFamily: 'var(--font-thai)',
