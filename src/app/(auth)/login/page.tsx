@@ -71,6 +71,16 @@ export default function LoginPage() {
   return (
     <div
       style={{
+        background: 'linear-gradient(1.37deg, #1f4488 2.37%, #6f8aba 97.82%)',
+        minHeight: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 80,
+      }}
+    >
+    <div
+      style={{
         background: '#fff',
         borderRadius: 16,
         boxShadow: '0px 0px 24px rgba(0,0,0,0.10)',
@@ -273,6 +283,7 @@ export default function LoginPage() {
           คลิกเพื่อลงทะเบียน
         </Link>
       </div>
+    </div>
     </div>
   )
 }

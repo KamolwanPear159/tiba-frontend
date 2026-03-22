@@ -49,6 +49,25 @@ export default function RegisterPage() {
   return (
     <div
       style={{
+        minHeight: '100%',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 80,
+        backgroundImage: 'url(/assets/membership-bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      {/* Dark + green overlay */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 0 }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(18,111,56,0.7)', zIndex: 0 }} />
+
+    <div
+      style={{
+        position: 'relative',
+        zIndex: 1,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -342,6 +361,7 @@ export default function RegisterPage() {
           เข้าสู่ระบบ
         </Link>
       </div>
+    </div>
     </div>
   )
 }
