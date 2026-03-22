@@ -8,9 +8,19 @@ import Link from 'next/link'
 
 function CheckIcon({ color = '#126f38' }: { color?: string }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="10" cy="10" r="9" stroke={color} strokeWidth="1.5" fill={color} fillOpacity="0.12" />
-      <path d="M6 10l3 3 5-5" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+      <circle cx="12" cy="12" r="11" fill={color} />
+      <path d="M7 12l3.5 3.5 6.5-7" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+// ─── Arrow right icon ─────────────────────────────────────────────────────────
+
+function ArrowRight() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M9 6L15 12.0001L9 18" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -18,17 +28,17 @@ function CheckIcon({ color = '#126f38' }: { color?: string }) {
 // ─── Feature lists ────────────────────────────────────────────────────────────
 
 const GENERAL_FEATURES = [
-  'เข้าถึงข้อมูลทั่วไป',
-  'อัพเดตข่าวสาร',
-  'รับสิทธิ์สมัครคอร์ส',
+  'เข้าถึงข้อมูลทั่วไปของเว็บไซต์',
+  'อัพเดตข่าวสารต่างๆ ก่อนใคร',
+  'รับสิทธิสมัครคอร์สอบรมของทางสมาคม',
 ]
 
 const ASSOC_FEATURES = [
-  'ทุกสิทธิ์ของสมาชิกทั่วไป',
-  'ได้รับการขึ้นโลโก้',
-  'สามารถดาวน์โหลดประกาศ',
-  'มีบัญชีผู้แทนรองได้ 2 บัญชี',
-  'ราคาพิเศษสำหรับคอร์สอบรม',
+  'เข้าถึงข้อมูลทั่วไปของเว็บไซต์',
+  'อัพเดตข่าวสารต่างๆ ก่อนใคร',
+  'รับสิทธิสมัครคอร์สอบรมของทางสมาคม',
+  'ได้รับการขึ้นโลโก้ของสมาคมในหน้าสมาชิก',
+  'สามารถดาวน์โหลดประกาศต่างๆ ของสมาคมได้',
 ]
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -42,65 +52,68 @@ export default function RegisterPage() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 40,
+        gap: 64,
         width: '100%',
-        maxWidth: 1000,
+        maxWidth: 1024,
       }}
     >
-      {/* Title */}
-      <h1
-        style={{
-          fontFamily: 'var(--font-thai)',
-          fontWeight: 700,
-          fontSize: 32,
-          lineHeight: '40px',
-          color: '#fff',
-          margin: 0,
-          textAlign: 'center',
-          textShadow: '0 2px 8px rgba(0,0,0,0.3)',
-        }}
-      >
-        เลือกประเภทสมาชิก
-      </h1>
+      {/* Title row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <h1
+          style={{
+            fontFamily: 'var(--font-thai)',
+            fontWeight: 700,
+            fontSize: 32,
+            lineHeight: '100%',
+            color: '#fff',
+            margin: 0,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          เลือกประเภทของสมาชิกที่ต้องการสมัคร
+        </h1>
+      </div>
 
       {/* Cards */}
       <div
         style={{
           display: 'flex',
-          gap: 32,
+          gap: 48,
           alignItems: 'stretch',
           justifyContent: 'center',
           width: '100%',
           flexWrap: 'wrap',
         }}
       >
-        {/* General member */}
+        {/* Card 1 — สมาชิกทั่วไป */}
         <div
           style={{
             borderRadius: 16,
-            boxShadow: '0px 0px 32px rgba(0,0,0,0.18)',
-            width: 440,
+            boxShadow: '0px 0px 24px rgba(0,0,0,0.10)',
+            width: 464,
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
           }}
         >
+          {/* Header */}
           <div
             style={{
               background: 'linear-gradient(200.34deg, #126f38 0%, #51ba7c 100%)',
-              padding: '28px 28px 24px',
+              padding: '32px 24px',
               display: 'flex',
               flexDirection: 'column',
-              gap: 4,
+              gap: 8,
             }}
           >
             <p
               style={{
                 fontFamily: 'var(--font-thai)',
                 fontWeight: 500,
-                fontSize: 20,
-                color: 'rgba(255,255,255,0.8)',
+                fontSize: 32,
+                color: 'rgba(255,255,255,0.7)',
                 margin: 0,
+                lineHeight: '100%',
               }}
             >
               สมาชิกทั่วไป
@@ -109,42 +122,59 @@ export default function RegisterPage() {
               style={{
                 fontFamily: 'var(--font-thai)',
                 fontWeight: 700,
-                fontSize: 40,
+                fontSize: 48,
                 color: '#fff',
                 margin: 0,
-                lineHeight: 1,
+                lineHeight: '100%',
               }}
             >
-              ฟรี
+              สมัครฟรี
             </p>
           </div>
 
+          {/* Body */}
           <div
             style={{
               background: '#fff',
-              padding: 28,
+              padding: 24,
               display: 'flex',
               flexDirection: 'column',
-              gap: 24,
+              justifyContent: 'space-between',
               flex: 1,
+              gap: 24,
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {GENERAL_FEATURES.map(f => (
-                <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <CheckIcon color="#126f38" />
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-thai)',
-                      fontSize: 15,
-                      color: '#444',
-                      lineHeight: '22px',
-                    }}
-                  >
-                    {f}
-                  </span>
-                </div>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-thai)',
+                  fontWeight: 600,
+                  fontSize: 24,
+                  lineHeight: '30px',
+                  color: '#0a0a0a',
+                  margin: 0,
+                }}
+              >
+                เหมาะสำหรับ บุคคลทั่วไปที่ต้องการอัพเดตข่าวสารของสมาคมก่อนใคร
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {GENERAL_FEATURES.map(f => (
+                  <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <CheckIcon color="#126f38" />
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-thai)',
+                        fontWeight: 600,
+                        fontSize: 16,
+                        color: 'rgba(0,0,0,0.5)',
+                        lineHeight: '20px',
+                      }}
+                    >
+                      {f}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <button
@@ -163,88 +193,103 @@ export default function RegisterPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,
-                marginTop: 'auto',
               }}
             >
-              สมัครสมาชิกทั่วไป
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M4 10h12M10 4l6 6-6 6" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              ลงทะเบียน
+              <ArrowRight />
             </button>
           </div>
         </div>
 
-        {/* Association member */}
+        {/* Card 2 — สมาชิกสมาคม */}
         <div
           style={{
             borderRadius: 16,
-            boxShadow: '0px 0px 32px rgba(0,0,0,0.18)',
-            width: 440,
+            boxShadow: '0px 0px 24px rgba(0,0,0,0.10)',
+            width: 464,
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
           }}
         >
+          {/* Header */}
           <div
             style={{
               background: 'linear-gradient(200.34deg, #1f4488 0%, #6f8aba 100%)',
-              padding: '28px 28px 24px',
+              padding: '32px 24px',
               display: 'flex',
               flexDirection: 'column',
-              gap: 4,
+              gap: 8,
             }}
           >
             <p
               style={{
                 fontFamily: 'var(--font-thai)',
                 fontWeight: 500,
-                fontSize: 20,
-                color: 'rgba(255,255,255,0.8)',
+                fontSize: 32,
+                color: 'rgba(255,255,255,0.7)',
                 margin: 0,
+                lineHeight: '100%',
               }}
             >
               สมาชิกสมาคม
             </p>
             <p
               style={{
-                fontFamily: 'var(--font-thai)',
+                fontFamily: 'var(--font-eng, var(--font-thai))',
                 fontWeight: 700,
-                fontSize: 40,
+                fontSize: 48,
                 color: '#fff',
                 margin: 0,
-                lineHeight: 1,
+                lineHeight: '100%',
               }}
             >
-              20,000 บาท/ปี
+              20,000.-
             </p>
           </div>
 
+          {/* Body */}
           <div
             style={{
               background: '#fff',
-              padding: 28,
+              padding: 24,
               display: 'flex',
               flexDirection: 'column',
-              gap: 24,
+              gap: 32,
               flex: 1,
             }}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {ASSOC_FEATURES.map(f => (
-                <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <CheckIcon color="#1f4488" />
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-thai)',
-                      fontSize: 15,
-                      color: '#444',
-                      lineHeight: '22px',
-                    }}
-                  >
-                    {f}
-                  </span>
-                </div>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-thai)',
+                  fontWeight: 600,
+                  fontSize: 24,
+                  lineHeight: '30px',
+                  color: '#0a0a0a',
+                  margin: 0,
+                }}
+              >
+                เหมาะสำหรับ การก้าวสู่การเป็นนายหน้าประกันมืออาชีพ
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {ASSOC_FEATURES.map(f => (
+                  <div key={f} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <CheckIcon color="#1f4488" />
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-thai)',
+                        fontWeight: 600,
+                        fontSize: 16,
+                        color: 'rgba(0,0,0,0.5)',
+                        lineHeight: '20px',
+                      }}
+                    >
+                      {f}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <button
@@ -266,10 +311,8 @@ export default function RegisterPage() {
                 marginTop: 'auto',
               }}
             >
-              สมัครสมาชิกสมาคม
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M4 10h12M10 4l6 6-6 6" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              ลงทะเบียน
+              <ArrowRight />
             </button>
           </div>
         </div>
